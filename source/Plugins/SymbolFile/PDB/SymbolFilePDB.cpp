@@ -716,14 +716,14 @@ uint32_t SymbolFilePDB::ResolveSymbolContext(
 
 uint32_t SymbolFilePDB::FindGlobalVariables(
     const lldb_private::ConstString &name,
-    const lldb_private::CompilerDeclContext *parent_decl_ctx, bool append,
+    const lldb_private::CompilerDeclContext *parent_decl_ctx,
     uint32_t max_matches, lldb_private::VariableList &variables) {
   return uint32_t();
 }
 
 uint32_t
 SymbolFilePDB::FindGlobalVariables(const lldb_private::RegularExpression &regex,
-                                   bool append, uint32_t max_matches,
+                                   uint32_t max_matches,
                                    lldb_private::VariableList &variables) {
   return uint32_t();
 }
