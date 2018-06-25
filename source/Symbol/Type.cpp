@@ -697,6 +697,13 @@ TypeAndOrName::TypeAndOrName(const TypeAndOrName &rhs)
 TypeAndOrName::TypeAndOrName(ConstString &in_type_const_string)
     : m_type_name(in_type_const_string) {}
 
+TypeAndOrName::TypeAndOrName(const CompilerType &type)
+    : m_type_pair(type)
+{
+  if (m_type_pair)
+    m_type_name = m_type_pair.GetName();
+}
+
 TypeAndOrName &TypeAndOrName::operator=(const TypeAndOrName &rhs) {
   if (this != &rhs) {
     m_type_name = rhs.m_type_name;
