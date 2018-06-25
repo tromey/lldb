@@ -135,6 +135,35 @@ get_demangled_name_without_arguments(ConstString mangled,
   return g_last_mangled;
 }
 
+static void remove_rust_hash(char *str) {
+  char *iter = str + strlen(str) - 1;
+  size_t hashcount = 0;
+  while (true) {
+    if (iter == str) {
+      // Hit the start of the string too early.
+      return;
+    }
+    if ((*iter >= '0' && *iter <= '9') ||
+        (*iter >= 'a' && *iter <= 'f')) {
+      ++hashcount;
+      --iter;
+      if (hashcount > 16) {
+        // Too many hash chars.
+        return;
+      }
+    } else {
+      // Not a hash char.
+      break;
+    }
+  }
+  if (*iter != 'h' || hashcount < 5 || str + 2 >= iter ||
+      iter[-1] != ':' || iter[-2] != ':') {
+    return;
+  }
+  iter[-2] = '\0';
+}
+
+
 #pragma mark Mangled
 //----------------------------------------------------------------------
 // Default constructor
@@ -320,6 +349,11 @@ Mangled::GetDemangledName(lldb::LanguageType language) const {
             log->Printf("demangled itanium: %s -> error: failed to demangle",
                         mangled_name);
         }
+
+        if (language == lldb::eLanguageTypeRust) {
+          remove_rust_hash(demangled_name);
+        }
+
         break;
       }
       case eManglingSchemeNone:
