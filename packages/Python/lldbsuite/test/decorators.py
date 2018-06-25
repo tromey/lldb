@@ -622,6 +622,17 @@ def skipUnlessGoInstalled(func):
     return skipTestIfFn(is_go_missing)(func)
 
 
+def skipUnlessRustInstalled(func):
+    """Decorate the item to skip tests when no Rust compiler is available."""
+
+    def is_rust_missing(self):
+        compiler = self.getRustCompilerVersion()
+        if not compiler:
+            return "skipping because rust compiler not found"
+        return None
+    return skipTestIfFn(is_rust_missing)(func)
+
+
 def skipIfHostIncompatibleWithRemote(func):
     """Decorate the item to skip tests if binaries built on this host are incompatible."""
 
