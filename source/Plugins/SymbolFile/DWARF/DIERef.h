@@ -49,6 +49,8 @@ struct DIERef {
     return cu_offset != DW_INVALID_OFFSET || die_offset != DW_INVALID_OFFSET;
   }
 
+  bool operator==(const DIERef &ref) const { return die_offset == ref.die_offset; }
+
   dw_offset_t cu_offset = DW_INVALID_OFFSET;
   dw_offset_t die_offset = DW_INVALID_OFFSET;
 };
