@@ -75,6 +75,7 @@ public:
     eKindGo,
     eKindJava,
     eKindOCaml,
+    eKindRust,
     kNumKinds
   };
 

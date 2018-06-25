@@ -27,6 +27,7 @@
 #include "lldb/Symbol/GoASTContext.h"
 #include "lldb/Symbol/JavaASTContext.h"
 #include "lldb/Symbol/OCamlASTContext.h"
+#include "lldb/Symbol/RustASTContext.h"
 #include "lldb/Utility/Timer.h"
 
 #include "Plugins/ABI/MacOSX-arm/ABIMacOSX_arm.h"
@@ -63,12 +64,14 @@
 #include "Plugins/Language/OCaml/OCamlLanguage.h"
 #include "Plugins/Language/ObjC/ObjCLanguage.h"
 #include "Plugins/Language/ObjCPlusPlus/ObjCPlusPlusLanguage.h"
+#include "Plugins/Language/Rust/RustLanguage.h"
 #include "Plugins/LanguageRuntime/CPlusPlus/ItaniumABI/ItaniumABILanguageRuntime.h"
 #include "Plugins/LanguageRuntime/Go/GoLanguageRuntime.h"
 #include "Plugins/LanguageRuntime/Java/JavaLanguageRuntime.h"
 #include "Plugins/LanguageRuntime/ObjC/AppleObjCRuntime/AppleObjCRuntimeV1.h"
 #include "Plugins/LanguageRuntime/ObjC/AppleObjCRuntime/AppleObjCRuntimeV2.h"
 #include "Plugins/LanguageRuntime/RenderScript/RenderScriptRuntime/RenderScriptRuntime.h"
+#include "Plugins/LanguageRuntime/Rust/RustLanguageRuntime.h"
 #include "Plugins/MemoryHistory/asan/MemoryHistoryASan.h"
 #include "Plugins/ObjectFile/ELF/ObjectFileELF.h"
 #include "Plugins/ObjectFile/Mach-O/ObjectFileMachO.h"
@@ -299,6 +302,7 @@ void SystemInitializerFull::Initialize() {
   GoASTContext::Initialize();
   JavaASTContext::Initialize();
   OCamlASTContext::Initialize();
+  RustASTContext::Initialize();
 
   ABIMacOSX_i386::Initialize();
   ABIMacOSX_arm::Initialize();
@@ -345,6 +349,7 @@ void SystemInitializerFull::Initialize() {
   RenderScriptRuntime::Initialize();
   GoLanguageRuntime::Initialize();
   JavaLanguageRuntime::Initialize();
+  RustLanguageRuntime::Initialize();
 
   CPlusPlusLanguage::Initialize();
   GoLanguage::Initialize();
@@ -352,6 +357,7 @@ void SystemInitializerFull::Initialize() {
   ObjCLanguage::Initialize();
   ObjCPlusPlusLanguage::Initialize();
   OCamlLanguage::Initialize();
+  RustLanguage::Initialize();
 
 #if defined(_WIN32)
   ProcessWindows::Initialize();
@@ -430,6 +436,7 @@ void SystemInitializerFull::Terminate() {
   GoASTContext::Terminate();
   JavaASTContext::Terminate();
   OCamlASTContext::Terminate();
+  RustASTContext::Terminate();
 
   ABIMacOSX_i386::Terminate();
   ABIMacOSX_arm::Terminate();
@@ -470,6 +477,7 @@ void SystemInitializerFull::Terminate() {
   SystemRuntimeMacOSX::Terminate();
   RenderScriptRuntime::Terminate();
   JavaLanguageRuntime::Terminate();
+  RustLanguageRuntime::Terminate();
 
   CPlusPlusLanguage::Terminate();
   GoLanguage::Terminate();
@@ -477,6 +485,7 @@ void SystemInitializerFull::Terminate() {
   ObjCLanguage::Terminate();
   ObjCPlusPlusLanguage::Terminate();
   OCamlLanguage::Terminate();
+  RustLanguage::Terminate();
 
 #if defined(__APPLE__)
   DynamicLoaderDarwinKernel::Terminate();
