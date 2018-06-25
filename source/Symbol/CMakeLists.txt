@@ -22,6 +22,7 @@ add_lldb_library(lldbSymbol
   LineTable.cpp
   ObjectFile.cpp
   OCamlASTContext.cpp
+  RustASTContext.cpp
   Symbol.cpp
   SymbolContext.cpp
   SymbolFile.cpp

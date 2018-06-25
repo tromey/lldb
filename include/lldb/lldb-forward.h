@@ -107,6 +107,7 @@ class FileSpec;
 class FileSpecList;
 class Flags;
 class GoASTContext;
+class RustASTContext;
 class TypeCategoryImpl;
 class FormatManager;
 class FormattersMatchCandidate;
@@ -350,6 +351,7 @@ typedef std::shared_ptr<lldb_private::Function> FunctionSP;
 typedef std::shared_ptr<lldb_private::FunctionCaller> FunctionCallerSP;
 typedef std::shared_ptr<lldb_private::FuncUnwinders> FuncUnwindersSP;
 typedef std::unique_ptr<lldb_private::GoASTContext> GoASTContextUP;
+typedef std::unique_ptr<lldb_private::RustASTContext> RustASTContextUP;
 typedef std::shared_ptr<lldb_private::InlineFunctionInfo> InlineFunctionInfoSP;
 typedef std::shared_ptr<lldb_private::Instruction> InstructionSP;
 typedef std::shared_ptr<lldb_private::InstrumentationRuntime>
