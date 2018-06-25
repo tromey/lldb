@@ -32,6 +32,7 @@ public:
     eKindClangHelper,
     eKindSwiftHelper,
     eKindGoHelper,
+    eKindRustHelper,
     kNumKinds
   };
 
