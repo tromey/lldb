@@ -64,6 +64,13 @@ if(LLDB_BUILD_FRAMEWORK)
   include(LLDBFramework)
 endif()
 
+if (NOT LLDB_DISABLE_PYTHON)
+   execute_process(
+     COMMAND
+        ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/scripts/get_libdir_suffix.py
+     OUTPUT_VARIABLE LLDB_PY_LIB_SUFFIX)
+endif ()
+
 add_subdirectory(docs)
 if (NOT LLDB_DISABLE_PYTHON)
   if(LLDB_USE_SYSTEM_SIX)
@@ -176,7 +183,7 @@ if (NOT LLDB_DISABLE_PYTHON)
                --cfgBldDir=${LLDB_PYTHON_TARGET_DIR}
                --prefix=${CMAKE_BINARY_DIR}
                --cmakeBuildConfiguration=${CMAKE_CFG_INTDIR}
-               --lldbLibDir=lib${LLVM_LIBDIR_SUFFIX}
+               --lldbLibDir=lib${LLDB_PY_LIB_SUFFIX}
                ${SIX_EXTRA_ARGS}
                ${FINISH_EXTRA_ARGS}
         VERBATIM
