@@ -625,6 +625,10 @@ public:
     int idx = m_default;
     if (iter != m_discriminants.end()) {
       idx = iter->second;
+    } else if (idx == -1) {
+      // If the DWARF was bad somehow, we could end up not finding the
+      // discriminant and not having a default.
+      return CompilerType();
     }
     return FieldAt(idx)->m_type;
   }

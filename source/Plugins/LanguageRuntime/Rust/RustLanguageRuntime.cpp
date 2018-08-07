@@ -98,6 +98,9 @@ bool RustLanguageRuntime::GetDynamicTypeAndAddress(
     }
 
     CompilerType variant_type = ast->FindEnumVariant(type, discriminant);
+    if (!variant_type) {
+      return false;
+    }
     class_type_or_name = TypeAndOrName(variant_type);
     // The address doesn't change.
     dynamic_address.SetLoadAddress(original_ptr, exe_ctx.GetTargetPtr());
