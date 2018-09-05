@@ -18,7 +18,7 @@
 #include "llvm/IR/Module.h"
 
 #include "lldb/Core/Module.h"
-#include "lldb/Core/State.h"
+#include "lldb/Utility/State.h"
 #include "lldb/Core/ValueObject.h"
 #include "lldb/Core/ValueObjectList.h"
 #include "lldb/Expression/DiagnosticManager.h"
