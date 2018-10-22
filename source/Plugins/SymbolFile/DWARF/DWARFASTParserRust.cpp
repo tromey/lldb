@@ -175,7 +175,7 @@ public:
 
   iterator end() const
   {
-    return iterator(DWARFDIE());
+    return iterator(DWARFDIE(m_die.GetCU(), (DWARFDebugInfoEntry*) nullptr));
   }
 
 private:
@@ -611,38 +611,42 @@ DWARFASTParserRust::ParseFields(const DWARFDIE &die, std::vector<size_t> &discri
 	  break;
 	}
       }
+    }
 
-      if (child_die == discriminant_die) {
-	// This field is the discriminant, so don't push it, but instead
-	// record this for the caller.
-	saw_discr = true;
-	discr_offset = new_field.byte_offset;
-	discr_byte_size = m_ast.GetBitSize(new_field.compiler_type.GetOpaqueQualType(),
-					   nullptr) / 8;
-      } else if (child_die.Tag() == DW_TAG_variant_part) {
-	// New-style enum representation -- nothing useful is in the
-	// enclosing struct, so we can just recurse here.
-	return ParseFields(child_die, discriminant_path, is_tuple,
-			   discr_offset, discr_byte_size, saw_discr);
-      } else {
-	if (new_field.is_discriminant) {
-	  // Don't check this field name, and don't increment field_index.
-	  // When we see a tuple with fields like
-	  //   RUST$ENUM$DISR
-	  //   __0
-	  //   __1
-	  //   etc
-	  // ... it means the tuple is a member type of an enum.
-	} else if (numeric_names) {
-	  char buf[32];
-	  snprintf (buf, sizeof (buf), "__%u", field_index);
-	  if (!new_field.name || strcmp(new_field.name, buf) != 0)
-	    numeric_names = false;
-	  ++field_index;
-	}
+    if (child_die == discriminant_die) {
+      // This field is the discriminant, so don't push it, but instead
+      // record this for the caller.
+      saw_discr = true;
+      discr_offset = new_field.byte_offset;
 
-	fields.push_back(new_field);
+      Type *type = die.ResolveTypeUID(DIERef(new_field.type));
+      if (type) {
+	lldb_private::CompilerType ctype = type->GetFullCompilerType();
+	discr_byte_size = m_ast.GetBitSize(ctype.GetOpaqueQualType(), nullptr) / 8;
       }
+    } else if (child_die.Tag() == DW_TAG_variant_part) {
+      // New-style enum representation -- nothing useful is in the
+      // enclosing struct, so we can just recurse here.
+      return ParseFields(child_die, discriminant_path, is_tuple,
+			 discr_offset, discr_byte_size, saw_discr);
+    } else {
+      if (new_field.is_discriminant) {
+	// Don't check this field name, and don't increment field_index.
+	// When we see a tuple with fields like
+	//   RUST$ENUM$DISR
+	//   __0
+	//   __1
+	//   etc
+	// ... it means the tuple is a member type of an enum.
+      } else if (numeric_names) {
+	char buf[32];
+	snprintf (buf, sizeof (buf), "__%u", field_index);
+	if (!new_field.name || strcmp(new_field.name, buf) != 0)
+	  numeric_names = false;
+	++field_index;
+      }
+
+      fields.push_back(new_field);
     }
   }
 
