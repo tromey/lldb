@@ -814,9 +814,18 @@ TypeSP DWARFASTParserRust::ParseStructureType(const DWARFDIE &die) {
 			 Type::eResolveStateForward));
 
   // Now add the fields.
+  int fieldno = 0;
   for (auto &&field : fields) {
     if (field.compiler_type) {
-      ConstString name(is_tuple ? "" : field.name);
+      ConstString name;
+      if (is_tuple) {
+	char buf[32];
+	snprintf (buf, sizeof (buf), "%u", fieldno);
+	++fieldno;
+	name = ConstString(buf);
+      } else {
+	name = ConstString(field.name);
+      }
       m_ast.AddFieldToStruct(compiler_type, name, field.compiler_type, field.byte_offset,
 			     field.is_default, field.discriminant);
     }

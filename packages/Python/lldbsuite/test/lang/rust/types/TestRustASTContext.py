@@ -136,10 +136,10 @@ class TestRustASTContext(TestBase):
         for (vname, typename, m0name, m1name, desc) in [
                 ('vstruct', 'main::Struct', 'field1', 'field2',
                  'struct main::Struct {\n  field1: u8,\n  field2: char\n}'),
-                ('vtuplestruct', 'main::TupleStruct', None, None,
-                 'struct main::TupleStruct (\n  u8,\n  char\n)'),
-                ('vtuple', '(u8, char)', None, None,
-                 '(\n  u8,\n  char\n)'),
+                ('vtuplestruct', 'main::TupleStruct', '0', '1',
+                 'struct main::TupleStruct (\n  0: u8,\n  1: char\n)'),
+                ('vtuple', '(u8, char)', '0', '1',
+                 '(\n  0: u8,\n  1: char\n)'),
                 ('vunion', 'main::Union', 'field1', 'field2',
                  'union main::Union {\n  field1: u8,\n  field2: char\n}'),
         ]:
@@ -159,7 +159,8 @@ class TestRustASTContext(TestBase):
     def check_enums(self):
         address_size = self.target().GetAddressByteSize()
         mytypelist = []
-        mytypelist.append(('main::SimpleEnum::Two', 'vsimpleenum', 6, '(83, 92)'))
+        # Note that this relies on the pre-DW_TAG_variant rustc.
+        mytypelist.append(('main::SimpleEnum::Two', 'vsimpleenum', 6, '(1 = 83, 2 = 92)'))
         mytypelist.append(('main::OptimizedEnum::Null', 'voptenum', address_size, '{}'))
         mytypelist.append(('main::OptimizedEnum::NonNull', 'voptenum2', address_size, None))
         for (name, vname, size, value) in mytypelist:
