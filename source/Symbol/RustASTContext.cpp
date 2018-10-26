@@ -410,7 +410,7 @@ public:
   // With the old-style enum encoding, after the discriminant's
   // location is computed the member types no longer need to have
   // theirs, so they are dropped.
-  void DropDiscriminant() {
+  virtual void DropDiscriminant() {
     if (m_has_discriminant) {
       m_has_discriminant = false;
       m_fields.erase(m_fields.begin());
@@ -461,6 +461,12 @@ protected:
     return result;
   }
 
+  Field *MutableFieldAt(size_t idx) {
+    if (idx >= m_fields.size())
+      return nullptr;
+    return &m_fields[idx];
+  }
+
 private:
 
   uint64_t m_byte_size;
@@ -507,6 +513,17 @@ public:
       name_map->typedefs.append(def);
     }
     return tagname + " " + varname;
+  }
+
+  void DropDiscriminant() override {
+    RustAggregateBase::DropDiscriminant();
+    // Rename the fields, because we dropped the first one.
+    for (size_t i = 0; i < FieldCount(); ++i) {
+      Field *f = MutableFieldAt(i);
+      char buf[32];
+      snprintf (buf, sizeof (buf), "%u", unsigned(i));
+      f->m_name = ConstString(buf);
+    }
   }
 
 private:

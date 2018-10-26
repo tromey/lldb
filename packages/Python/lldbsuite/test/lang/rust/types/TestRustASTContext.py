@@ -159,8 +159,7 @@ class TestRustASTContext(TestBase):
     def check_enums(self):
         address_size = self.target().GetAddressByteSize()
         mytypelist = []
-        # Note that this relies on the pre-DW_TAG_variant rustc.
-        mytypelist.append(('main::SimpleEnum::Two', 'vsimpleenum', 6, '(1 = 83, 2 = 92)'))
+        mytypelist.append(('main::SimpleEnum::Two', 'vsimpleenum', 6, '(0 = 83, 1 = 92)'))
         mytypelist.append(('main::OptimizedEnum::Null', 'voptenum', address_size, '{}'))
         mytypelist.append(('main::OptimizedEnum::NonNull', 'voptenum2', address_size, None))
         for (name, vname, size, value) in mytypelist:

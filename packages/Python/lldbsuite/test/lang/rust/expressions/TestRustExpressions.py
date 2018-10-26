@@ -119,11 +119,9 @@ class TestRustExpressions(TestBase):
         v = frame.EvaluateExpression("*vu8ref")
         self.assertEqual("(u8) *vu8ref = 23", str(v))
         v = frame.EvaluateExpression("vsimpleenum", lldb.eDynamicDontRunTarget)
-        # Note that this relies on the pre-DW_TAG_variant rustc.
-        self.assertEqual("(main::SimpleEnum::Two) vsimpleenum = (1 = 83, 2 = 92)", str(v))
+        self.assertEqual("(main::SimpleEnum::Two) vsimpleenum = (0 = 83, 1 = 92)", str(v))
         v = frame.EvaluateExpression("vsimpleenum.1")
-        # Note that this relies on the pre-DW_TAG_variant rustc.
-        self.assertEqual("(u16) 2 = 92", str(v))
+        self.assertEqual("(u16) 1 = 92", str(v))
         v = frame.EvaluateExpression("vsimpleenum1.f2")
         self.assertEqual("(u8) f2 = 83", str(v))
         v = frame.EvaluateExpression("vi8 = 7")
