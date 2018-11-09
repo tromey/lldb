@@ -237,6 +237,9 @@ TypeSP DWARFASTParserRust::ParseSimpleType(lldb_private::Log *log, const DWARFDI
       compiler_type = m_ast.CreateBoolType(type_name_const_str);
     else if (encoding == DW_ATE_float)
       compiler_type = m_ast.CreateFloatType(type_name_const_str, byte_size);
+    else if (byte_size == 0 && type_name_const_str &&
+	     strcmp(type_name_const_str.AsCString(), "()") == 0)
+      compiler_type = m_ast.CreateTupleType(type_name_const_str, byte_size, false);
     else if (encoding == DW_ATE_signed || encoding == DW_ATE_unsigned ||
              // DW_ATE_UCS seems to be less used (perhaps
              // Fortran-specific?) and since I'm not planning to have

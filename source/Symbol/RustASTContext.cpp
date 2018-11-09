@@ -1802,40 +1802,22 @@ void RustASTContext::DumpTypeDescription(lldb::opaque_compiler_type_t type, Stre
   s->PutCString(name.AsCString());
 }
 
-RustType *RustASTContext::FindCachedType(const lldb_private::ConstString &name) {
-  if (name.IsEmpty())
-    return nullptr;
-  auto result = m_types.find(name);
-  if (result == m_types.end ())
-    return nullptr;
-  return result->second.get();
-}
-
-CompilerType RustASTContext::CacheType(const ConstString &name, RustType *new_type) {
-  if (name.IsEmpty()) {
-    // Be sure to keep nameless types alive.
-    m_anon_types.insert(std::unique_ptr<RustType>(new_type));
-  } else {
-    m_types[name].reset(new_type);
-  }
+CompilerType RustASTContext::CacheType(RustType *new_type) {
+  m_types.insert(std::unique_ptr<RustType>(new_type));
   return CompilerType(this, new_type);
 }
 
 CompilerType RustASTContext::CreateBoolType(const lldb_private::ConstString &name) {
-  if (RustType *cached = FindCachedType(name))
-    return CompilerType(this, cached);
   RustType *type = new RustBool(name);
-  return CacheType(name, type);
+  return CacheType(type);
 }
 
 CompilerType RustASTContext::CreateIntegralType(const lldb_private::ConstString &name,
                                                 bool is_signed,
                                                 uint64_t byte_size,
                                                 bool is_char_type) {
-  if (RustType *cached = FindCachedType(name))
-    return CompilerType(this, cached);
   RustType *type = new RustIntegral(name, is_signed, byte_size, is_char_type);
-  return CacheType(name, type);
+  return CacheType(type);
 }
 
 CompilerType RustASTContext::CreateIntrinsicIntegralType(bool is_signed, uint64_t byte_size) {
@@ -1853,10 +1835,8 @@ CompilerType RustASTContext::CreateCharType() {
 
 CompilerType RustASTContext::CreateFloatType(const lldb_private::ConstString &name,
                                              uint64_t byte_size) {
-  if (RustType *cached = FindCachedType(name))
-    return CompilerType(this, cached);
   RustType *type = new RustFloat(name, byte_size);
-  return CacheType(name, type);
+  return CacheType(type);
 }
 
 CompilerType RustASTContext::CreateArrayType(const CompilerType &element_type,
@@ -1868,53 +1848,41 @@ CompilerType RustASTContext::CreateArrayType(const CompilerType &element_type,
   name += "]";
   ConstString newname(name);
 
-  if (RustType *cached = FindCachedType(newname))
-    return CompilerType(this, cached);
   RustType *type = new RustArray(newname, length, element_type);
-  return CacheType(newname, type);
+  return CacheType(type);
 }
 
 CompilerType RustASTContext::CreateTypedefType(const ConstString &name, CompilerType impl) {
-  if (RustType *cached = FindCachedType(name))
-    return CompilerType(this, cached);
   RustType *type = new RustTypedef(name, impl);
-  return CacheType(name, type);
+  return CacheType(type);
 }
 
 CompilerType
 RustASTContext::CreateStructType(const lldb_private::ConstString &name, uint32_t byte_size,
                                  bool has_discriminant) {
-  if (RustType *cached = FindCachedType(name))
-    return CompilerType(this, cached);
   RustType *type = new RustStruct(name, byte_size, has_discriminant);
-  return CacheType(name, type);
+  return CacheType(type);
 }
 
 CompilerType
 RustASTContext::CreateTupleType(const lldb_private::ConstString &name, uint32_t byte_size,
                                 bool has_discriminant) {
-  if (RustType *cached = FindCachedType(name))
-    return CompilerType(this, cached);
   RustType *type = new RustTuple(name, byte_size, has_discriminant);
-  return CacheType(name, type);
+  return CacheType(type);
 }
 
 CompilerType
 RustASTContext::CreateUnionType(const lldb_private::ConstString &name, uint32_t byte_size) {
-  if (RustType *cached = FindCachedType(name))
-    return CompilerType(this, cached);
   RustType *type = new RustUnion(name, byte_size);
-  return CacheType(name, type);
+  return CacheType(type);
 }
 
 CompilerType
 RustASTContext::CreatePointerType(const lldb_private::ConstString &name,
                                   const CompilerType &pointee_type,
                                   uint32_t byte_size) {
-  if (RustType *cached = FindCachedType(name))
-    return CompilerType(this, cached);
   RustType *type = new RustPointer(name, pointee_type, byte_size);
-  return CacheType(name, type);
+  return CacheType(type);
 }
 
 void RustASTContext::AddFieldToStruct(const CompilerType &struct_type,
@@ -1941,39 +1909,31 @@ CompilerType
 RustASTContext::CreateFunctionType(const lldb_private::ConstString &name,
                                    const CompilerType &return_type,
                                    const std::vector<CompilerType> &&params) {
-  if (RustType *cached = FindCachedType(name))
-    return CompilerType(this, cached);
   RustType *type = new RustFunction(name, m_pointer_byte_size, return_type, std::move(params));
-  return CacheType(name, type);
+  return CacheType(type);
 }
 
 CompilerType
 RustASTContext::CreateVoidType() {
   ConstString name("()");
-  if (RustType *cached = FindCachedType(name))
-    return CompilerType(this, cached);
   RustType *type = new RustTuple(name, 0, false);
-  return CacheType(name, type);
+  return CacheType(type);
 }
 
 CompilerType
 RustASTContext::CreateEnumType(const lldb_private::ConstString &name,
                                uint64_t byte_size, uint32_t discr_offset,
                                uint32_t discr_byte_size) {
-  if (RustType *cached = FindCachedType(name))
-    return CompilerType(this, cached);
   RustType *type = new RustEnum(name, byte_size, discr_offset, discr_byte_size);
-  return CacheType(name, type);
+  return CacheType(type);
 }
 
 CompilerType
 RustASTContext::CreateCLikeEnumType(const lldb_private::ConstString &name,
                                     const CompilerType &underlying_type,
                                     std::map<uint64_t, std::string> &&values) {
-  if (RustType *cached = FindCachedType(name))
-    return CompilerType(this, cached);
   RustType *type = new RustCLikeEnum(name, underlying_type, std::move(values));
-  return CacheType(name, type);
+  return CacheType(type);
 }
 
 bool

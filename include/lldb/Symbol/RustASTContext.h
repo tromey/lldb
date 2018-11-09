@@ -435,14 +435,12 @@ public:
 
 private:
   int m_pointer_byte_size;
-  std::map<ConstString, std::unique_ptr<RustType>> m_types;
-  std::set<std::unique_ptr<RustType>> m_anon_types;
+  std::set<std::unique_ptr<RustType>> m_types;
   std::unique_ptr<DWARFASTParser> m_dwarf_ast_parser_ap;
 
   std::unique_ptr<RustDeclContext> m_tu_decl;
 
-  RustType *FindCachedType(const lldb_private::ConstString &name);
-  CompilerType CacheType(const lldb_private::ConstString &name, RustType *new_type);
+  CompilerType CacheType(RustType *new_type);
 
   RustASTContext(const RustASTContext &) = delete;
   const RustASTContext &operator=(const RustASTContext &) = delete;
