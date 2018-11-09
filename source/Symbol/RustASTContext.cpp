@@ -454,7 +454,7 @@ protected:
       if (f.m_name.IsEmpty()) {
         name = "__" + std::to_string(argno++);
       } else {
-        name = f.m_name.AsCString();
+        name = std::string("_") + f.m_name.AsCString();
       }
       result += rtype->GetCABITypeDeclaration(name_map, name) + "; ";
     }
