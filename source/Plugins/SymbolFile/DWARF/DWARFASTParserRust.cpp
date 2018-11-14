@@ -372,7 +372,9 @@ TypeSP DWARFASTParserRust::ParseFunctionType(const DWARFDIE &die) {
     return_type = m_ast.CreateVoidType();
   }
 
+  SymbolFileDWARF *dwarf = die.GetDWARF();
   std::vector<CompilerType> function_param_types;
+  std::vector<CompilerType> template_params;
   for (auto &&child_die : IterableDIEChildren(die)) {
     if (child_die.Tag() == DW_TAG_formal_parameter) {
       for (auto &&attr : IterableDIEAttrs(child_die)) {
@@ -384,13 +386,18 @@ TypeSP DWARFASTParserRust::ParseFunctionType(const DWARFDIE &die) {
 	  break;
 	}
       }
+    } else if (child_die.Tag() == DW_TAG_template_type_parameter) {
+      Type *param_type = dwarf->ResolveTypeUID(child_die, true);
+      if (param_type) {
+	template_params.push_back(param_type->GetForwardCompilerType());
+      }
     }
   }
 
   CompilerType compiler_type = m_ast.CreateFunctionType(type_name_const_str, return_type,
-							std::move(function_param_types));
+							std::move(function_param_types),
+							std::move(template_params));
 
-  SymbolFileDWARF *dwarf = die.GetDWARF();
   TypeSP type_sp(new Type(die.GetID(), dwarf, type_name_const_str, 0, NULL,
 			  LLDB_INVALID_UID, Type::eEncodingIsUID, &decl,
 			  compiler_type, Type::eResolveStateFull));

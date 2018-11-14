@@ -34,6 +34,8 @@ pub enum OptimizedEnum {
 
 pub struct Generic<T>(T);
 
+fn generic_function<T>(arg: T) { }
+
 fn main() {
     let vbool: bool = true;
 
@@ -75,6 +77,7 @@ fn main() {
     let voptenum2 = OptimizedEnum::NonNull(Box::new(7));
 
     let vgeneric = Generic(23i32);
+    generic_function(vgeneric.0);
 
     do_nothing();               // breakpoint
 }

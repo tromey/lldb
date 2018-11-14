@@ -179,3 +179,7 @@ class TestRustASTContext(TestBase):
         self.assertEqual(1, t.num_template_args)
         self.assertEqual('T', t.template_args[0].name)
         self.assertEqual('i32', t.template_args[0].GetTypedefedType().name)
+        t = self.frame().EvaluateExpression("generic_function<i32>").GetType().GetPointeeType()
+        self.assertEqual(1, t.num_template_args)
+        self.assertEqual('T', t.template_args[0].name)
+        self.assertEqual('i32', t.template_args[0].GetTypedefedType().name)

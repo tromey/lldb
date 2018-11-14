@@ -1284,7 +1284,8 @@ RustFunctionTypeExpression::Evaluate(ExecutionContext &exe_ctx, Status &error) {
     args.push_back(argtype);
   }
 
-  return context->CreateFunctionType(ConstString(""), ret, std::move(args));
+  std::vector<CompilerType> empty;
+  return context->CreateFunctionType(ConstString(""), ret, std::move(args), std::move(empty));
 }
 
 CompilerType

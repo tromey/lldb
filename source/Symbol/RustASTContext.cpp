@@ -712,11 +712,13 @@ class RustFunction : public RustType {
 public:
   RustFunction (const ConstString &name, uint64_t byte_size,
                 const CompilerType &return_type,
-                const std::vector<CompilerType> &&arguments)
+                const std::vector<CompilerType> &&arguments,
+                const std::vector<CompilerType> &&template_arguments)
     : RustType(name),
       m_byte_size(byte_size),
       m_return_type(return_type),
-      m_arguments(std::move(arguments))
+      m_arguments(std::move(arguments)),
+      m_template_args(std::move(template_arguments))
   {
   }
   DISALLOW_COPY_AND_ASSIGN(RustFunction);
@@ -763,11 +765,20 @@ public:
     return result + ")";
   }
 
+  size_t GetNumTemplateArguments() const {
+    return m_template_args.size();
+  }
+
+  CompilerType GetTypeTemplateArgument(size_t idx) const {
+    return m_template_args[idx];
+  }
+
 private:
 
   uint64_t m_byte_size;
   CompilerType m_return_type;
   std::vector<CompilerType> m_arguments;
+  std::vector<CompilerType> m_template_args;
 };
 
 class RustTypedef : public RustType {
@@ -1921,8 +1932,10 @@ void RustASTContext::AddFieldToStruct(const CompilerType &struct_type,
 CompilerType
 RustASTContext::CreateFunctionType(const lldb_private::ConstString &name,
                                    const CompilerType &return_type,
-                                   const std::vector<CompilerType> &&params) {
-  RustType *type = new RustFunction(name, m_pointer_byte_size, return_type, std::move(params));
+                                   const std::vector<CompilerType> &&params,
+                                   const std::vector<CompilerType> &&template_params) {
+  RustType *type = new RustFunction(name, m_pointer_byte_size, return_type, std::move(params),
+				    std::move(template_params));
   return CacheType(type);
 }
 
@@ -2168,6 +2181,8 @@ CompilerType RustASTContext::GetTypeTemplateArgument(lldb::opaque_compiler_type_
     RustType *t = static_cast<RustType *>(type);
     if (RustAggregateBase *a = t->AsAggregate()) {
       return a->GetTypeTemplateArgument(idx);
+    } else if (RustFunction *f = t->AsFunction()) {
+      return f->GetTypeTemplateArgument(idx);
     }
   }
   return CompilerType();
@@ -2178,6 +2193,8 @@ size_t RustASTContext::GetNumTemplateArguments(lldb::opaque_compiler_type_t type
     RustType *t = static_cast<RustType *>(type);
     if (RustAggregateBase *a = t->AsAggregate()) {
       return a->GetNumTemplateArguments();
+    } else if (RustFunction *f = t->AsFunction()) {
+      return f->GetNumTemplateArguments();
     }
   }
   return 0;
