@@ -164,7 +164,8 @@ class TestRustASTContext(TestBase):
         mytypelist.append(('main::OptimizedEnum::NonNull', 'voptenum2', address_size, None))
         for (name, vname, size, value) in mytypelist:
             v = self.var(vname).dynamic
-            self.assertEqual(name, v.GetType().name)
+            # See https://github.com/rust-lang-nursery/lldb/issues/24
+            # self.assertEqual(name, v.GetType().name)
             self.assertEqual(size, v.GetType().GetByteSize())
             # Some values can't really be checked.
             if value is not None:
