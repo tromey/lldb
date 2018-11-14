@@ -400,6 +400,10 @@ public:
     m_fields.emplace_back(name, type, offset);
   }
 
+  void AddTemplateParameter(const CompilerType &ctype) {
+    m_template_args.push_back(ctype);
+  }
+
   virtual void FinishInitialization() {
   }
 
@@ -421,6 +425,14 @@ public:
     if (idx >= m_fields.size())
       return nullptr;
     return &m_fields[idx];
+  }
+
+  size_t GetNumTemplateArguments() const {
+    return m_template_args.size();
+  }
+
+  CompilerType GetTypeTemplateArgument(size_t idx) const {
+    return m_template_args[idx];
   }
 
   typedef std::vector<Field>::const_iterator const_iterator;
@@ -472,6 +484,7 @@ private:
   uint64_t m_byte_size;
   std::vector<Field> m_fields;
   bool m_has_discriminant;
+  std::vector<CompilerType> m_template_args;
 };
 
 class RustTuple : public RustAggregateBase {
@@ -2147,4 +2160,37 @@ bool RustASTContext::GetCABITypeDeclaration(CompilerType type, const std::string
   RustType *rtype = static_cast<RustType *>(type.GetOpaqueQualType());
   *result = rtype->GetCABITypeDeclaration(name_map, varname);
   return true;
+}
+
+CompilerType RustASTContext::GetTypeTemplateArgument(lldb::opaque_compiler_type_t type,
+						     size_t idx) {
+  if (type) {
+    RustType *t = static_cast<RustType *>(type);
+    if (RustAggregateBase *a = t->AsAggregate()) {
+      return a->GetTypeTemplateArgument(idx);
+    }
+  }
+  return CompilerType();
+}
+
+size_t RustASTContext::GetNumTemplateArguments(lldb::opaque_compiler_type_t type) {
+  if (type) {
+    RustType *t = static_cast<RustType *>(type);
+    if (RustAggregateBase *a = t->AsAggregate()) {
+      return a->GetNumTemplateArguments();
+    }
+  }
+  return 0;
+}
+
+void RustASTContext::AddTemplateParameter(const CompilerType &type, const CompilerType &param) {
+  if (!type)
+    return;
+  RustASTContext *ast = llvm::dyn_cast_or_null<RustASTContext>(type.GetTypeSystem());
+  if (!ast)
+    return;
+  RustType *t = static_cast<RustType *>(type.GetOpaqueQualType());
+  if (RustAggregateBase *a = t->AsAggregate()) {
+    a->AddTemplateParameter(param);
+  }
 }

@@ -491,7 +491,7 @@ std::vector<DWARFASTParserRust::Field>
 DWARFASTParserRust::ParseFields(const DWARFDIE &die, std::vector<size_t> &discriminant_path,
 				bool &is_tuple,
 				uint64_t &discr_offset, uint64_t &discr_byte_size,
-				bool &saw_discr) {
+				bool &saw_discr, std::vector<CompilerType> &template_params) {
   SymbolFileDWARF *dwarf = die.GetDWARF();
 
   // We construct a list of fields and then apply them later so that
@@ -631,8 +631,8 @@ DWARFASTParserRust::ParseFields(const DWARFDIE &die, std::vector<size_t> &discri
       // New-style enum representation -- nothing useful is in the
       // enclosing struct, so we can just recurse here.
       return ParseFields(child_die, discriminant_path, is_tuple,
-			 discr_offset, discr_byte_size, saw_discr);
-    } else {
+			 discr_offset, discr_byte_size, saw_discr, template_params);
+    } else if (child_die.Tag() == DW_TAG_member) {
       if (new_field.is_discriminant) {
 	// Don't check this field name, and don't increment field_index.
 	// When we see a tuple with fields like
@@ -650,6 +650,11 @@ DWARFASTParserRust::ParseFields(const DWARFDIE &die, std::vector<size_t> &discri
       }
 
       fields.push_back(new_field);
+    } else if (child_die.Tag() == DW_TAG_template_type_parameter) {
+      Type *param_type = dwarf->ResolveTypeUID(child_die, true);
+      if (param_type) {
+	template_params.push_back(param_type->GetForwardCompilerType());
+      }
     }
   }
 
@@ -728,8 +733,10 @@ TypeSP DWARFASTParserRust::ParseStructureType(const DWARFDIE &die) {
   bool saw_discr = false;
   uint64_t discr_offset, discr_byte_size;
   std::vector<size_t> discriminant_path;
+  std::vector<CompilerType> template_params;
   std::vector<Field> fields = ParseFields(die, discriminant_path, is_tuple,
-					  discr_offset, discr_byte_size, saw_discr);
+					  discr_offset, discr_byte_size, saw_discr,
+					  template_params);
 
   // This is true if this is a union, there are multiple fields and
   // each field's type has a discriminant.
@@ -833,6 +840,9 @@ TypeSP DWARFASTParserRust::ParseStructureType(const DWARFDIE &die) {
 			     field.is_default, field.discriminant);
     }
   }
+
+  for (const CompilerType &param_type : template_params)
+    m_ast.AddTemplateParameter(compiler_type, param_type);
 
   m_ast.FinishAggregateInitialization(compiler_type);
 

@@ -32,6 +32,8 @@ pub enum OptimizedEnum {
     NonNull(Box<u8>)
 }
 
+pub struct Generic<T>(T);
+
 fn main() {
     let vbool: bool = true;
 
@@ -71,6 +73,8 @@ fn main() {
     let vsimpleenum = SimpleEnum::Two(83, 92);
     let voptenum = OptimizedEnum::Null;
     let voptenum2 = OptimizedEnum::NonNull(Box::new(7));
+
+    let vgeneric = Generic(23i32);
 
     do_nothing();               // breakpoint
 }

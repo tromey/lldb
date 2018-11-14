@@ -132,6 +132,8 @@ public:
                         bool is_default, uint64_t discriminant);
   void FinishAggregateInitialization(const CompilerType &type);
 
+  void AddTemplateParameter(const CompilerType &type, const CompilerType &param);
+
   bool TypeHasDiscriminant(const CompilerType &type);
   bool IsTupleType(const CompilerType &type);
 
@@ -327,9 +329,14 @@ public:
                                 const char *name, bool omit_empty_base_classes,
                                 std::vector<uint32_t> &child_indexes) override;
 
-  size_t GetNumTemplateArguments(lldb::opaque_compiler_type_t type) override {
-    return 0;
+  lldb::TemplateArgumentKind GetTemplateArgumentKind(lldb::opaque_compiler_type_t type,
+						     size_t idx) override {
+    // Rust currently only has types.
+    return lldb::eTemplateArgumentKindType;
   }
+
+  CompilerType GetTypeTemplateArgument(lldb::opaque_compiler_type_t type, size_t idx) override;
+  size_t GetNumTemplateArguments(lldb::opaque_compiler_type_t type) override;
 
   //----------------------------------------------------------------------
   // Dumping types

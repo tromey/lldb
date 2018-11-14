@@ -104,7 +104,8 @@ private:
 				 std::vector<size_t> &discriminant_path,
 				 bool &is_tuple,
 				 uint64_t &discr_offset, uint64_t &discr_byte_size,
-				 bool &saw_discr);
+				 bool &saw_discr,
+				 std::vector<lldb_private::CompilerType> &template_params);
 
   lldb_private::RustASTContext &m_ast;
 

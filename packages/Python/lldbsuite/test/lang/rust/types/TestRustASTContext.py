@@ -26,6 +26,7 @@ class TestRustASTContext(TestBase):
         self.check_main_function()
         self.check_structs()
         self.check_enums()
+        self.check_generics()
 
     def setUp(self):
         # Call super's setUp().
@@ -167,7 +168,14 @@ class TestRustASTContext(TestBase):
             # See https://github.com/rust-lang-nursery/lldb/issues/24
             # self.assertEqual(name, v.GetType().name)
             self.assertEqual(size, v.GetType().GetByteSize())
+            self.assertEqual(0, v.GetType().num_template_args)
             # Some values can't really be checked.
             if value is not None:
                 expected = "(" + name + ") " + vname + " = " + value
                 self.assertEqual(expected, str(v.dynamic))
+
+    def check_generics(self):
+        t = self.var('vgeneric').GetType()
+        self.assertEqual(1, t.num_template_args)
+        self.assertEqual('T', t.template_args[0].name)
+        self.assertEqual('i32', t.template_args[0].GetTypedefedType().name)
