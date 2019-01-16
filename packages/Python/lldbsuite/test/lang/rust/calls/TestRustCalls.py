@@ -81,3 +81,10 @@ class TestRustExpressions(TestBase):
         # self.assertEqual("(u8)  = 18", str(v))
         v = frame.EvaluateExpression("sum(0, 1, 2, 3.0, 4.0)")
         self.assertEqual("(f64)  = 10", str(v))
+        # This should call via the impl.
+        v = frame.EvaluateExpression("l.f()")
+        self.assertEqual("(i64)  = -22", str(v))
+        # This should call via the function field.
+        v = frame.EvaluateExpression("(l.f)()")
+        self.assertEqual("(i64)  = -23", str(v))
+o

@@ -68,6 +68,18 @@ pub fn sum(a: u8, b: u16, c: u32, d: f32, e: f64) -> f64 {
     a as f64 + b as f64 + c as f64 + d as f64 + e
 }
 
+pub struct Function {
+    f: fn () -> i64,
+}
+
+impl Function {
+    pub fn f(&self) -> i64 {
+        // constant is used in the test below, and we need to be sure
+        // to return a different value
+        constant () + 1
+    }
+}
+
 fn main() {
     let a = not(false);
     let b = constant();
@@ -81,6 +93,7 @@ fn main() {
     let i = unifyplus1(SimpleEnum::Two(11));
     let j = add1ue(UnivariantEnum::Single(99));
     let k = sum(0, 1, 2, 3.0, 4.0);
+    let l = Function { f: constant };
 
     do_nothing();               // breakpoint
 }

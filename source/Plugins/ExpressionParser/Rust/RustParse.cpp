@@ -1447,9 +1447,30 @@ RustExpressionUP Parser::Field(RustExpressionUP &&lhs, Status &error) {
 
   RustExpressionUP result;
   if (CurrentToken().kind == IDENTIFIER) {
-    result = llvm::make_unique<RustFieldExpression>(std::move(lhs),
-                                                    CurrentToken().str);
+    llvm::StringRef field = CurrentToken().str;
     Advance();
+
+    if (CurrentToken().kind == '(') {
+      Advance();
+
+      std::vector<RustExpressionUP> exprs;
+      if (CurrentToken().kind != ')') {
+	if (!ExprList(&exprs, error)) {
+	  return RustExpressionUP();
+	}
+      }
+
+      if (CurrentToken().kind != ')') {
+	error.SetErrorString("expected ')'");
+	return RustExpressionUP();
+      }
+      Advance();
+
+      result = llvm::make_unique<RustMethodCall>(std::move(lhs), field, std::move(exprs));
+    } else {
+      result = llvm::make_unique<RustFieldExpression>(std::move(lhs),
+						      CurrentToken().str);
+    }
   } else if (CurrentToken().kind == INTEGER) {
     result = llvm::make_unique<RustTupleFieldExpression>(std::move(lhs),
                                                          CurrentToken().uinteger.getValue());

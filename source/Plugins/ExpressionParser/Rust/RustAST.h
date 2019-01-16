@@ -579,6 +579,29 @@ private:
 
 };
 
+class RustMethodCall : public RustExpression {
+public:
+
+  RustMethodCall(RustExpressionUP &&self, llvm::StringRef method, std::vector<RustExpressionUP> &&exprs)
+    : m_self(std::move(self)),
+      m_method(method),
+      m_exprs(std::move(exprs))
+  {
+  }
+
+  void print(Stream &stream) override {
+    stream << m_self << "." << m_method << " (" << m_exprs << ")";
+  }
+
+  lldb::ValueObjectSP Evaluate(ExecutionContext &exe_ctx, Status &error) override;
+
+private:
+
+  RustExpressionUP m_self;
+  std::string m_method;
+  std::vector<RustExpressionUP> m_exprs;
+};
+
 class RustCast : public RustExpression {
 public:
 
